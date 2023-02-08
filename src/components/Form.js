@@ -1,18 +1,40 @@
+import { nanoid } from "nanoid";
+
 function Form(props) {
-  const {data, setFormData} = props;
-  const [date, distance] = data;
+  const { data, setData } = props;
+  const { date, distance } = data;
+  console.log('[Form.JS] data incoming', data);
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
-    console.log('catch event: ', evt);
-    clearForm();
+    // console.log('[Form.JS] catch event: ', evt);
+    console.log('[Form.JS] data до handleSubmit: ', data);
+    data.date = evt.target.date.value;
+    data.distance = evt.target.distance.value;
+    
+
+    applyData(data);
+    console.log('[Form.JS] data после applyData: ', data);
+    // clear form
+    clearForm(evt.target);
   }
-  const clearForm = () => {
-    setFormData({
-      date: null,
-      distance: null,
-    })
+
+  const applyData = (data) => {
+    setData(prevData => ([
+      ...prevData,
+      {
+        id: nanoid(),
+        date: date,
+        distance: distance,
+      }
+    ]));
   }
+
+  const clearForm = (form) => {
+    form.date.value = '';
+    form.distance.value = '';
+  }
+  
   return (
     <form className="Form" onSubmit={handleSubmit}>
       <div className="formColumn">
