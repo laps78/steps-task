@@ -1,23 +1,137 @@
 import './App.css';
-import Form from './components/Form';
-import Table from './components/Table';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { nanoid } from 'nanoid';
+import RowItem from './components/RowItem';
+import Message from './components/Message';
 
 function App() {
-  const [formData, setFormData] = useState([]);
-  const updateFormData = (data) => setFormData(data);
-  
-  const [tableData, setTableData] = useState([]);
-  const updateTableData = (data) => setTableData(data);
+  const [data, setData] = useState([]);
+  const messages = {
+    wrongDate: 'Неверный формат даты! Введите дату в формате ДД.ММ.ГГГГ',
+    wrongDistance: 'Неверный формат расстояния! Введите число от 1 до 999',
+    successAdd: 'Данные успешно добавлены!',
+    successDelete: 'Данные успешно удалены!',
+    successEdit: 'Данные успешно изменены!',
+  }
 
-  //TODO remove logs!
-  console.log('[App.js] formData', formData);
-  console.log('[App.js] tableData', tableData);
+  const handleSubmit = (evt) => {
+    evt.preventDefault();
+    validateForm(evt.target);
+    clearForm(evt.target);
+  }
+
+  const validateForm = (form) => {
+    if (validateDate(form.date.value) && validateDistance(form.distance.value)) {
+      applyFormData(form);
+    }
+  }
+
+  const validateDate = (date) => {
+    const dateRegExp = /^\s*(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})\s*$/;
+
+    if (date.match(dateRegExp)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  const validateDistance = (distance) => {
+    if (Number(distance) > 0 && Number(distance) < 999) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  const applyFormData = (form) => {
+    // TODO check if date already exists
+    const foundData = data.filter(instance => instance.date === form.date.value);
+    console.log('found:', foundData);
+    if (foundData.length === 1) {
+      console.log('found! index = ', data.indexOf(...foundData));
+      updateData(form, data.indexOf(...foundData));
+    } else {
+      console.log('not found... Adding');
+      addData(form);
+    }
+  }
+
+  const addData = (form) => {
+    // make new data
+    const newData = {
+      date: form.date.value,
+      distance: Number(form.distance.value),
+    };
+
+    // save new data
+    setData((prevData) => {
+      return [...prevData, newData];
+    })
+  }
+
+  const updateData = (form, index) => {
+    setData(prevData => {
+      console.log('value before: ', prevData[index].distance);
+      prevData[index].distance += Number(form.distance.value);
+      console.log('value after: ', prevData[index].distance);
+      return prevData;
+    })
+  }
+
+  const removeData = () => {
+
+  }
+
+  const clearForm = (form) => {
+    form.date.value = '';
+    form.distance.value = '';
+  }
+
+  const showMessage = (message) => {
+    console.warn(message);
+  }
 
   return (
     <div className="App">
-      <Form data={formData} setData={updateFormData} />
-      <Table data={tableData} setData={updateTableData} />
+      <form className="Form" onSubmit={handleSubmit}>
+        <div className="formColumn">
+          <label htmlFor="date">Дата (ДД.ММ.ГГ)</label>
+          <input type="text"
+            name="date"
+            placeholder="Дата"
+            defaultValue="">
+          </input>
+        </div>
+        <div className="formColumn">
+          <label htmlFor="distance">Пройдено км</label>
+          <input type="text"
+            name="distance"
+            placeholder="Пройдено км"
+            defaultValue=""
+          ></input>
+        </div>
+        <button type="submit">OK</button>
+      </form>
+      
+      <div className="Table">
+        <div className="TableHeader">
+          <span>Дата (ДД.ММ.ГГ)</span>
+          <span>Пройдено км</span>
+          <span>Действия</span>
+        </div>
+        <div className="TableContent">
+          {
+            data.map(row => {
+              const id = nanoid();
+              return (
+                <RowItem key={id} id={id} date={row.date} distance={row.distance}/>
+              );
+           })
+          }
+        </div>
+      </div>
+      
     </div>
   );
 }

@@ -59,10 +59,13 @@ button:hover,
   display: flex;
   justify-content: space-between;
   width: 100%;
+  padding: 1rem;
 }
 
 .TableContent {
-  padding-top: 1rem;
+  box-sizing: border-box;
+  margin: 0 1rem;
+  padding: 1rem;
   border: 1px solid #000000;
   border-radius: 1rem;
   display: flex;
@@ -72,6 +75,7 @@ button:hover,
 }
 
 .TableRow {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;

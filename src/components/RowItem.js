@@ -14,11 +14,13 @@ function RowItem(props) {
   );
 }
 RowItem.propTypes = {
+  id: PropTypes.string.isRequired,
   date: PropTypes.string.isRequired,
   distance: PropTypes.number.isRequired,
 }
 
 RowItem.defaultProps = {
+  id: null,
   date: null,
   distance: null,
 }
