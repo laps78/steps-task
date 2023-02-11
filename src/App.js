@@ -2,7 +2,7 @@ import './App.css';
 import React, { useState } from 'react';
 import { nanoid } from 'nanoid';
 import RowItem from './components/RowItem';
-import Message from './components/Message';
+// import Message from './components/Message';
 
 function App() {
   const [data, setData] = useState([]);
@@ -13,7 +13,11 @@ function App() {
     successDelete: 'Данные успешно удалены!',
     successEdit: 'Данные успешно изменены!',
   }
-  const updateDataFromChild = (data) => setData(data);
+
+  const deleteDataFromChild = (id) => setData((prevData) => {
+    showMessage(messages.successDelete);
+    return [...prevData.filter((instance) => instance.id !== id)]
+  });
     
   const handleSubmit = (evt) => {
     evt.preventDefault();
@@ -33,7 +37,7 @@ function App() {
     if (date.match(dateRegExp)) {
       return true;
     } else {
-      console.warn(messages.wrongDate);
+      showMessage(messages.wrongDate);
       return false;
     }
   }
@@ -42,13 +46,12 @@ function App() {
     if (Number(distance) > 0 && Number(distance) < 999) {
       return true;
     } else {
-      console.warn(messages.wrongDistance);
+      showMessage(messages.wrongDistance);
       return false;
     }
   }
 
   const applyFormData = (form) => {
-    // TODO check if date already exists
     const foundData = data.filter(instance => instance.date === form.date.value);
     if (foundData.length === 1) {
       updateData(form.distance.value, data.indexOf(...foundData));
@@ -61,6 +64,7 @@ function App() {
   const addData = (form) => {
     // make new data
     const newData = {
+      id: nanoid(),
       date: form.date.value,
       distance: Number(form.distance.value),
     };
@@ -68,31 +72,31 @@ function App() {
     // save new data
     setData((prevData) => {
       return [...prevData, newData];
-    })
+    });
+
+    showMessage(messages.successAdd);
   }
 
   const sortData = () => {
     setData((prevData) => {
       prevData.sort((a, b) => {
-        const transformDate = (date) => {
+        const date2UTC = (date) => {
           const [day, month, year] = date.split('.');
           return `${month}/${day}/${year}`;
         }
-        return Date.parse(transformDate(b.date)) - Date.parse(transformDate(a.date));
+        return Date.parse(date2UTC(b.date)) - Date.parse(date2UTC(a.date));
       });
       return [...prevData];
     })
   }
 
   const updateData = (value, index) => {
+    const newValue = data[index].distance += Number(value);
     setData(prevData => {
-      prevData[index].distance += Number(value);
+      prevData[index].distance = newValue;
       return [...prevData];
     })
-  }
-
-  const removeData = () => {
-
+    showMessage(messages.successAdd);
   }
 
   const clearForm = (form) => {
@@ -101,7 +105,7 @@ function App() {
   }
 
   const showMessage = (message) => {
-    console.warn(message);
+    console.info(message);
   }
 
   return (
@@ -135,14 +139,13 @@ function App() {
         <div className="TableContent">
           {
             data.map(row => {
-              const id = nanoid();
               return (
                 <RowItem
-                  key={id}
-                  id={id}
+                  key={row.id}
+                  id={row.id}
                   date={row.date}
                   distance={row.distance}
-                  updateData={updateDataFromChild}
+                  deleteData={deleteDataFromChild}
                 />
               );
            })
