@@ -47,12 +47,9 @@ function App() {
   const applyFormData = (form) => {
     // TODO check if date already exists
     const foundData = data.filter(instance => instance.date === form.date.value);
-    console.log('found:', foundData);
     if (foundData.length === 1) {
-      console.log('found! index = ', data.indexOf(...foundData));
-      updateData(form, data.indexOf(...foundData));
+      updateData(form.distance.value, data.indexOf(...foundData));
     } else {
-      console.log('not found... Adding');
       addData(form);
     }
   }
@@ -70,12 +67,10 @@ function App() {
     })
   }
 
-  const updateData = (form, index) => {
+  const updateData = (value, index) => {
     setData(prevData => {
-      console.log('value before: ', prevData[index].distance);
-      prevData[index].distance += Number(form.distance.value);
-      console.log('value after: ', prevData[index].distance);
-      return prevData;
+      prevData[index].distance += Number(value);
+      return [...prevData];
     })
   }
 
@@ -125,7 +120,7 @@ function App() {
             data.map(row => {
               const id = nanoid();
               return (
-                <RowItem key={id} id={id} date={row.date} distance={row.distance}/>
+                <RowItem key={id} id={id} date={row.date} distance={row.distance} />
               );
            })
           }
