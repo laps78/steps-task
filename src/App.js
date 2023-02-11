@@ -13,7 +13,8 @@ function App() {
     successDelete: 'Данные успешно удалены!',
     successEdit: 'Данные успешно изменены!',
   }
-
+  const updateDataFromChild = (data) => setData(data);
+    
   const handleSubmit = (evt) => {
     evt.preventDefault();
     validateForm(evt.target);
@@ -32,6 +33,7 @@ function App() {
     if (date.match(dateRegExp)) {
       return true;
     } else {
+      console.warn(messages.wrongDate);
       return false;
     }
   }
@@ -40,6 +42,7 @@ function App() {
     if (Number(distance) > 0 && Number(distance) < 999) {
       return true;
     } else {
+      console.warn(messages.wrongDistance);
       return false;
     }
   }
@@ -51,6 +54,7 @@ function App() {
       updateData(form.distance.value, data.indexOf(...foundData));
     } else {
       addData(form);
+      sortData();
     }
   }
 
@@ -64,6 +68,19 @@ function App() {
     // save new data
     setData((prevData) => {
       return [...prevData, newData];
+    })
+  }
+
+  const sortData = () => {
+    setData((prevData) => {
+      prevData.sort((a, b) => {
+        const transformDate = (date) => {
+          const [day, month, year] = date.split('.');
+          return `${month}/${day}/${year}`;
+        }
+        return Date.parse(transformDate(b.date)) - Date.parse(transformDate(a.date));
+      });
+      return [...prevData];
     })
   }
 
@@ -120,7 +137,13 @@ function App() {
             data.map(row => {
               const id = nanoid();
               return (
-                <RowItem key={id} id={id} date={row.date} distance={row.distance} />
+                <RowItem
+                  key={id}
+                  id={id}
+                  date={row.date}
+                  distance={row.distance}
+                  updateData={updateDataFromChild}
+                />
               );
            })
           }
